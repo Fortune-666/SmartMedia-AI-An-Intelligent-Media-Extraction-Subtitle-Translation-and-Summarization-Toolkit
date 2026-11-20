@@ -12,7 +12,19 @@ class TranscriptionError(RuntimeError):
     """Raised when ASR transcription fails or yields no usable text."""
 
 
+_MODEL_CACHE: dict = {}
+
+
 def _load_model(model_size: str):
+    """Return the Whisper model for model_size, loading it only once.
+
+    Long audio is transcribed chunk by chunk; without the cache the model was
+    reloaded for every chunk.
+    """
+    cached = _MODEL_CACHE.get(model_size)
+    if cached is not None:
+        return cached
+
     try:
         import whisper
     except ImportError as exc:
@@ -20,7 +32,9 @@ def _load_model(model_size: str):
             "openai-whisper is not installed. Run `pip install openai-whisper`."
         ) from exc
 
-    return whisper.load_model(model_size)
+    model = whisper.load_model(model_size)
+    _MODEL_CACHE[model_size] = model
+    return model
 
 
 def transcribe_audio(

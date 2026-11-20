@@ -76,7 +76,13 @@ def get_audio_duration(audio_path: str) -> float:
             f"ffprobe failed (exit code {result.returncode}): {result.stderr.strip()}"
         )
 
-    return float(result.stdout.strip())
+    raw = result.stdout.strip()
+    try:
+        return float(raw)
+    except ValueError as exc:
+        raise AudioExtractionError(
+            f"ffprobe returned no usable duration for {audio_path}: {raw!r}"
+        ) from exc
 
 
 def split_audio(audio_path: str, segment_seconds: int, output_dir: str) -> list[Path]:

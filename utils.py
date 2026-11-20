@@ -16,6 +16,7 @@ class ProcessingLog:
         self._entries: list[str] = []
 
     def record(self, stage: str, status: str, detail: str = "") -> None:
+        """Add one timestamped stage/status line to the log."""
         timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
         line = f"[{timestamp}] stage={stage} status={status}"
         if detail:
@@ -23,6 +24,7 @@ class ProcessingLog:
         self._entries.append(line)
 
     def write(self) -> Path:
+        """Write all recorded lines to the log file in the output directory and return its path."""
         self.output_dir.mkdir(parents=True, exist_ok=True)
         log_path = self.output_dir / self.filename
         log_path.write_text("\n".join(self._entries) + "\n", encoding="utf-8")

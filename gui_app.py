@@ -25,6 +25,7 @@ STAGE_LABELS = {
 
 
 def build_options(mode, file, url, source, target, subtitle_format, output_dir):
+    """Validate the form values and map them to PipelineOptions; the ValueError message is shown to the user (FR-41)."""
     if mode not in ("file", "url"):
         raise ValueError("请选择本地文件或 URL。")
     value = (file if mode == "file" else url).strip()
@@ -47,6 +48,7 @@ def build_options(mode, file, url, source, target, subtitle_format, output_dir):
 
 
 class PipelineWorker:
+    """Runs the pipeline in a background thread and reports progress through a queue, so the window stays responsive (FR-37, FR-38)."""
     def __init__(self):
         self.events = queue.Queue()
         self.cancel_event = threading.Event()
@@ -82,6 +84,7 @@ class PipelineWorker:
 
 
 def open_output_directory(path):
+    """Open the output directory in the system file browser (FR-36)."""
     directory = Path(path).resolve()
     if not directory.is_dir():
         raise OSError(f"输出目录不存在：{directory}")
@@ -92,6 +95,7 @@ def open_output_directory(path):
 
 
 class BatchDownloadWorker:
+    """Runs concurrent downloads in a background thread and reports per-item progress through a queue (FR-06)."""
     def __init__(self):
         self.events = queue.Queue()
         self.cancel_event = threading.Event()
@@ -128,6 +132,7 @@ class BatchDownloadWorker:
 
 
 class SmartMediaApp:
+    """Tkinter main window: input form, progress, cancel, and subtitle / summary preview (FR-33 to FR-36)."""
     def __init__(self, root):
         import tkinter as tk
         from tkinter import ttk
@@ -538,6 +543,7 @@ class SmartMediaApp:
 
 
 def main():
+    """Create the Tk root window and start the application."""
     import tkinter as tk
 
     root = tk.Tk()

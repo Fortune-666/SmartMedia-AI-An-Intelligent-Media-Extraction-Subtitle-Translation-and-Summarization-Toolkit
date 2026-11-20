@@ -268,11 +268,11 @@ SmartMedia-AI 是一个独立的、模块化的 Python 应用程序，而非 Web
 
 | 需求编号 | 测试用例/测试函数 | 状态 |
 |---|---|---|
-| FR-03 | `test_validate_url_and_file_input` | 待实现 |
-| FR-09 | `test_audio_converted_to_asr_format` | 待实现 |
-| FR-15 | `test_transcription_failure_halts_pipeline` | 待实现 |
-| FR-18 | `test_bilingual_srt_output` | 待实现 |
-| FR-39 | `test_error_handling_all_categories` | 待实现 |
+| FR-03 | `test_validate_url_and_file_input_*` (test_downloader.py), `test_validate_url_*` (test_downloader_url.py) | 已实现 |
+| FR-09 | `test_audio_converted_to_asr_format` | 已实现 |
+| FR-15 | `test_transcription_failure_halts_pipeline_empty_result`, `test_transcription_failure_halts_pipeline_exception` | 已实现 |
+| FR-18 | `test_bilingual_srt_output` | 已实现 |
+| FR-39 | `tests/test_error_handling.py` (10 tests; 8 of the 9 listed categories - API timeout is not tested) | 已实现 |
 
 ### 5.4 验收标准 (Acceptance Criteria)
 
@@ -291,47 +291,47 @@ SmartMedia-AI 是一个独立的、模块化的 Python 应用程序，而非 Web
 
 | 需求编号 | 优先级 | 需求摘要 | 测试函数/验证方式 | 状态 |
 |---|---|---|---|---|
-| FR-01 | 核心 | 通过 URL 下载媒体 | `test_download_via_url` | 待实现 |
-| FR-02 | 核心 | 导入本地媒体文件 | `test_import_local_file` | 待实现 |
-| FR-03 | 核心 | 校验 URL/文件输入 | `test_validate_url_and_file_input` | 待实现 |
-| FR-04 | 核心 | 可配置输出目录 | `test_output_directory_selection` | 待实现 |
-| FR-05 | 核心 | 显示下载进度 | `test_download_progress_indicator` | 待实现 |
-| FR-06 | 扩展 | 多线程下载 | `test_concurrent_downloads` | 待实现 |
-| FR-07 | 核心 | 通过 FFmpeg 提取音频 | `test_ffmpeg_audio_extraction` | 待实现 |
-| FR-08 | 核心 | 转换为 WAV/MP3/M4A | `test_audio_format_conversion` | 待实现 |
-| FR-09 | 核心 | 转换为 ASR 所需格式 | `test_audio_converted_to_asr_format` | 待实现 |
-| FR-10 | 核心 | 切分长音频并拼接时间线 | `test_audio_split_and_timeline_merge` | 待实现 |
-| FR-11 | 核心 | ASR 语音转写 | `test_asr_transcription` | 待实现 |
-| FR-12 | 核心 | 带时间戳的转写文本 | `test_transcript_has_timestamps` | 待实现 |
-| FR-13 | 核心 | 支持中/英文 | `test_transcription_en_zh` | 待实现 |
-| FR-14 | 核心 | 语言自动检测 | `test_auto_language_detection` | 待实现 |
-| FR-15 | 核心 | 转写失败处理 | `test_transcription_failure_halts_pipeline` | 待实现 |
-| FR-16 | 核心 | 基于时间戳的字幕分段 | `test_subtitle_segmentation` | 待实现 |
-| FR-17 | 核心 | 字幕文本翻译 | `test_subtitle_translation` | 待实现 |
-| FR-18 | 核心 | 双语 .srt 输出 | `test_bilingual_srt_output` | 待实现 |
-| FR-19 | 核心 | .vtt 输出支持 | `test_vtt_output` | 待实现 |
-| FR-20 | 扩展 | 字幕嵌入视频 | `test_subtitle_embedding` | 待实现 |
-| FR-21 | 扩展 | 近实时翻译 | `test_realtime_translation_latency` | 待实现 |
-| FR-22 | 核心 | 生成摘要 | `test_summary_generation` | 待实现 |
-| FR-23 | 核心 | 关键词提取 | `test_keyword_extraction` | 待实现 |
-| FR-24 | 核心 | 要点提取 | `test_main_points_extraction` | 待实现 |
-| FR-25 | 核心 | 保存摘要输出文件 | `test_summary_output_file` | 待实现 |
-| FR-26 | 扩展 | 章节/主题划分 | `test_chapter_division` | 待实现 |
-| FR-27 | 扩展 | 离线本地大模型摘要 | `test_offline_llm_summarization` | 待实现 |
-| FR-28 | 核心 | CLI 参数解析 | `test_cli_argument_parsing` | 待实现 |
-| FR-29 | 核心 | CLI 字幕格式选择 | `test_cli_format_selection` | 待实现 |
-| FR-30 | 核心 | CLI 进度信息 | 人工走查 | 待实现 |
-| FR-31 | 核心 | CLI 打印输出路径 | `test_cli_prints_output_paths` | 待实现 |
-| FR-32 | 核心 | CLI 错误报告与退出码 | `test_cli_error_exit_code` | 待实现 |
-| FR-33 | 扩展 | GUI 核心控件 | 人工走查 | 待实现 |
-| FR-34 | 扩展 | GUI 字幕预览 | 人工走查 | 待实现 |
-| FR-35 | 扩展 | GUI 摘要预览 | 人工走查 | 待实现 |
-| FR-36 | 扩展 | GUI 打开输出文件夹控件 | 人工走查 | 待实现 |
-| FR-37 | 扩展 | GUI 共享 CLI 后端 | `test_gui_cli_backend_parity` | 待实现 |
-| FR-38 | 扩展 | GUI 取消进行中的运行 | 人工走查 | 待实现 |
-| FR-39 | 核心 | 全部失败类别的错误处理 | `test_error_handling_all_categories` | 待实现 |
-| FR-40 | 核心 | 每次运行写入处理日志 | `test_processing_log_written` | 待实现 |
-| FR-41 | 核心 | GUI 向用户呈现错误 | 人工走查 | 待实现 |
+| FR-01 | 核心 | 通过 URL 下载媒体 | `test_download_via_url` | 已实现 |
+| FR-02 | 核心 | 导入本地媒体文件 | `test_import_local_file` | 已实现 |
+| FR-03 | 核心 | 校验 URL/文件输入 | `test_validate_url_and_file_input_*` (test_downloader.py), `test_validate_url_*` (test_downloader_url.py) | 已实现 |
+| FR-04 | 核心 | 可配置输出目录 | `test_cli_prints_output_paths`, `test_pipeline_success_returns_outputs_and_writes_log` | 已实现 |
+| FR-05 | 核心 | 显示下载进度 | `test_download_progress_indicator` | 已实现 |
+| FR-06 | 扩展 | 多线程下载 | `test_download_multiple_limits_concurrency`、`test_download_multiple_preserves_input_order`、`test_download_multiple_isolates_single_failure` | 已实现 |
+| FR-07 | 核心 | 通过 FFmpeg 提取音频 | `test_ffmpeg_audio_extraction` | 已实现 |
+| FR-08 | 核心 | 转换为 WAV/MP3/M4A | `test_audio_format_conversion` | 已实现 |
+| FR-09 | 核心 | 转换为 ASR 所需格式 | `test_audio_converted_to_asr_format` | 已实现 |
+| FR-10 | 核心 | 切分长音频并拼接时间线 | `test_audio_split_and_timeline_merge` | 已实现 |
+| FR-11 | 核心 | ASR 语音转写 | `test_asr_transcription` | 已实现 |
+| FR-12 | 核心 | 带时间戳的转写文本 | `test_transcript_has_timestamps` | 已实现 |
+| FR-13 | 核心 | 支持中/英文 | `test_transcription_en_zh` | 已实现 |
+| FR-14 | 核心 | 语言自动检测 | `test_auto_language_detection` | 已实现 |
+| FR-15 | 核心 | 转写失败处理 | `test_transcription_failure_halts_pipeline_empty_result`, `test_transcription_failure_halts_pipeline_exception` | 已实现 |
+| FR-16 | 核心 | 基于时间戳的字幕分段 | `test_subtitle_segmentation` | 已实现 |
+| FR-17 | 核心 | 字幕文本翻译 | `test_subtitle_translation` | 已实现 |
+| FR-18 | 核心 | 双语 .srt 输出 | `test_bilingual_srt_output` | 已实现 |
+| FR-19 | 核心 | .vtt 输出支持 | `test_vtt_output` | 已实现 |
+| FR-20 | 扩展 | 字幕嵌入视频 | `test_subtitle_embedding` | 未实现（扩展） |
+| FR-21 | 扩展 | 近实时翻译 | `test_realtime_translation_latency` | 未实现（扩展） |
+| FR-22 | 核心 | 生成摘要 | `test_summary_generation` | 已实现 |
+| FR-23 | 核心 | 关键词提取 | `test_keyword_extraction` | 已实现 |
+| FR-24 | 核心 | 要点提取 | `test_main_points_extraction` | 已实现 |
+| FR-25 | 核心 | 保存摘要输出文件 | `test_summary_output_file` | 已实现 |
+| FR-26 | 扩展 | 章节/主题划分 | `test_chapter_division` | 未实现（扩展） |
+| FR-27 | 扩展 | 离线本地大模型摘要 | `test_offline_llm_summarization` | 未实现（扩展） |
+| FR-28 | 核心 | CLI 参数解析 | `test_cli_argument_parsing` | 已实现 |
+| FR-29 | 核心 | CLI 字幕格式选择 | `test_cli_format_selection` | 已实现 |
+| FR-30 | 核心 | CLI 进度信息 | `test_pipeline_url_path_and_progress_callbacks`; real CLI run | 已实现 |
+| FR-31 | 核心 | CLI 打印输出路径 | `test_cli_prints_output_paths` | 已实现 |
+| FR-32 | 核心 | CLI 错误报告与退出码 | `test_cli_error_exit_code` | 已实现 |
+| FR-33 | 扩展 | GUI 核心控件 | `test_gui_options_map_to_backend`, `test_gui_rejects_missing_input`; real GUI run | 已实现 |
+| FR-34 | 扩展 | GUI 字幕预览 | `test_gui_preview_success_and_state_recovery`; real GUI run | 已实现 |
+| FR-35 | 扩展 | GUI 摘要预览 | `test_gui_preview_success_and_state_recovery`; real GUI run | 已实现 |
+| FR-36 | 扩展 | GUI 打开输出文件夹控件 | `test_open_directory_uses_safe_argument_list`, `test_gui_open_directory_failure` | 已实现 |
+| FR-37 | 扩展 | GUI 共享 CLI 后端 | `test_gui_cli_backend_parity` | 已实现 |
+| FR-38 | 扩展 | GUI 取消进行中的运行 | `test_worker_cancel_blocks_restart_until_current_stage_returns`, `test_pipeline_cancel_*` | 已实现 |
+| FR-39 | 核心 | 全部失败类别的错误处理 | `tests/test_error_handling.py` (10 tests; 8 of the 9 listed categories - API timeout is not tested) | 已实现 |
+| FR-40 | 核心 | 每次运行写入处理日志 | `test_processing_log_written` | 已实现 |
+| FR-41 | 核心 | GUI 向用户呈现错误 | `test_gui_failure_restores_controls_and_surfaces_error` | 已实现 |
 
 ---
 

@@ -119,30 +119,31 @@ pytest tests -v
 
 所有外部依赖（FFmpeg 子进程、Whisper 模型）在单元测试中均通过 mock 隔离，无需真实网络连接或真实模型权重即可运行测试套件。
 
+当前共 110 个测试（15 个测试文件），全部通过；用 `coverage.py` 测得整体覆盖率约 81%。GitHub Actions 工作流（`.github/workflows/test.yml`）在每次推送和合并请求时运行同一套测试。
+
 ## 项目结构
 
-| 文件 | 职责 |
-|---|---|
-| `main.py` | CLI 程序入口 |
-| `cli_main.py` | 命令行接口（参数解析、进度打印、退出码） |
-| `gui_app.py` | Tkinter 桌面界面（输入、进度、取消、预览） |
-| `pipeline.py` | 共享处理流水线（CLI 与 GUI 共用后端） |
-| `downloader.py` | 本地文件导入 / URL 下载 |
-| `media_processor.py` | FFmpeg 音频提取与格式转换 |
-| `ai_engine.py` | 语音转写（ASR）、翻译 |
-| `subtitle_generator.py` | 双语字幕生成（.srt / .vtt） |
-| `summarizer.py` | 摘要与关键词提取 |
-| `config.py` | 环境变量 / API 密钥配置 |
-| `utils.py` | 通用工具函数（含处理日志） |
-| `tests/` | 单元测试（pytest） |
+| 文件                      | 职责                                       |
+| ------------------------- | ------------------------------------------ |
+| `main.py`               | CLI 程序入口                               |
+| `cli_main.py`           | 命令行接口（参数解析、进度打印、退出码）   |
+| `gui_app.py`            | Tkinter 桌面界面（输入、进度、取消、预览） |
+| `pipeline.py`           | 共享处理流水线（CLI 与 GUI 共用后端）      |
+| `downloader.py`         | 本地文件导入 / URL 下载                    |
+| `media_processor.py`    | FFmpeg 音频提取与格式转换                  |
+| `ai_engine.py`          | 语音转写（ASR）、翻译                      |
+| `subtitle_generator.py` | 双语字幕生成（.srt / .vtt）                |
+| `summarizer.py`         | 摘要与关键词提取                           |
+| `config.py`             | 环境变量 / API 密钥配置                    |
+| `utils.py`              | 通用工具函数（含处理日志）                 |
+| `tests/`                | 单元测试（pytest）                         |
 
 ## 开发进度
 
-详见 `roadmap.md`。当前已完成：
+详见 `roadmap.md`（逐步状态）与 `specification.md` 附录 A（需求到测试的对应表）。
 
-- 阶段 0：仓库脚手架、配置管理、CI
-- 阶段 1 第 1 步：本地文件导入校验
-- 阶段 1 第 2 步：FFmpeg 音频提取（16kHz 单声道 WAV）
-- 阶段 1 第 3 步：语音转写（Whisper，带时间戳，自动语言检测）
-- 第 12 步：Tkinter GUI（共享流水线、进度与取消、字幕/摘要预览）
-- 第 13 步：多线程批量下载（GUI 与 CLI，可配置最大并发数）
+- 阶段 0（脚手架、配置、CI）与阶段 1（第 1–8 步，核心流水线）：已完成
+- 阶段 2（第 9–11 步：错误处理与日志、正式 CLI、端到端测试）：已完成
+- 阶段 3：第 12 步 Tkinter GUI、第 13 步多线程批量下载已完成；第 14–17 步（章节摘要、字幕嵌入视频、本地大模型摘要、近实时翻译）未开始，不影响核心验收
+
+代码审查记录见 `CODE_REVIEW.md`。

@@ -21,7 +21,9 @@ _STOPWORDS = {
 }
 
 _WORD_RE = re.compile(r"[A-Za-z']+|[一-鿿]")
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s+")
+# English sentences end with punctuation + whitespace; Chinese ones end with
+# 。！？ and are usually NOT followed by whitespace, so split there as well.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[。！？])|(?<=[.!?])\s+")
 
 
 def _split_sentences(text: str) -> list[str]:

@@ -15,6 +15,7 @@ SUBTITLE_FORMATS = pipeline.SUBTITLE_FORMATS
 
 
 def build_parser():
+    """Build the argparse parser; --file, --url and --download-urls are mutually exclusive (FR-28, FR-29)."""
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -106,6 +107,7 @@ def _print_batch_progress(index: int, url: str, data: dict) -> None:
 
 
 def main(argv=None) -> int:
+    """Run the command-line interface and return the exit code: 0 on success, 1 on any failure (FR-32)."""
     parser = build_parser()
     args = parser.parse_args(argv)
 

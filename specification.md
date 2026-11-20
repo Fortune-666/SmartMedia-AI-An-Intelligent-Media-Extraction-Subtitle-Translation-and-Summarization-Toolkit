@@ -268,11 +268,11 @@ Following the proposal's testing plan (Section 10), the team shall use **pytest*
 
 | Requirement ID | Test case / test function | Status |
 |---|---|---|
-| FR-03 | `test_validate_url_and_file_input` | To be implemented |
-| FR-09 | `test_audio_converted_to_asr_format` | To be implemented |
-| FR-15 | `test_transcription_failure_halts_pipeline` | To be implemented |
-| FR-18 | `test_bilingual_srt_output` | To be implemented |
-| FR-39 | `test_error_handling_all_categories` | To be implemented |
+| FR-03 | `test_validate_url_and_file_input_*` (test_downloader.py), `test_validate_url_*` (test_downloader_url.py) | Implemented |
+| FR-09 | `test_audio_converted_to_asr_format` | Implemented |
+| FR-15 | `test_transcription_failure_halts_pipeline_empty_result`, `test_transcription_failure_halts_pipeline_exception` | Implemented |
+| FR-18 | `test_bilingual_srt_output` | Implemented |
+| FR-39 | `tests/test_error_handling.py` (10 tests; 8 of the 9 listed categories - API timeout is not tested) | Implemented |
 
 ### 5.4 Acceptance Criteria
 
@@ -291,47 +291,47 @@ The software is considered to have **passed acceptance for its Core scope** when
 
 | Requirement ID | Priority | Requirement summary | Test function / verification | Status |
 |---|---|---|---|---|
-| FR-01 | Core | Download media via URL | `test_download_via_url` | To be implemented |
-| FR-02 | Core | Import local media file | `test_import_local_file` | To be implemented |
-| FR-03 | Core | Validate URL/file input | `test_validate_url_and_file_input` | To be implemented |
-| FR-04 | Core | Configurable output directory | `test_output_directory_selection` | To be implemented |
-| FR-05 | Core | Display download progress | `test_download_progress_indicator` | To be implemented |
+| FR-01 | Core | Download media via URL | `test_download_via_url` | Implemented |
+| FR-02 | Core | Import local media file | `test_import_local_file` | Implemented |
+| FR-03 | Core | Validate URL/file input | `test_validate_url_and_file_input_*` (test_downloader.py), `test_validate_url_*` (test_downloader_url.py) | Implemented |
+| FR-04 | Core | Configurable output directory | `test_cli_prints_output_paths`, `test_pipeline_success_returns_outputs_and_writes_log` | Implemented |
+| FR-05 | Core | Display download progress | `test_download_progress_indicator` | Implemented |
 | FR-06 | Extension | Multi-threaded downloading | mocked concurrency tests in `tests/test_downloader_url.py`; real CLI/GUI batch-download walkthrough with concurrent downloads, per-item failure isolation, and filename-collision avoidance | Implemented |
-| FR-07 | Core | Extract audio via FFmpeg | `test_ffmpeg_audio_extraction` | To be implemented |
-| FR-08 | Core | Convert to WAV/MP3/M4A | `test_audio_format_conversion` | To be implemented |
-| FR-09 | Core | Convert to ASR-ready format | `test_audio_converted_to_asr_format` | To be implemented |
-| FR-10 | Core | Split long audio & reassemble timeline | `test_audio_split_and_timeline_merge` | To be implemented |
-| FR-11 | Core | ASR transcription | `test_asr_transcription` | To be implemented |
-| FR-12 | Core | Timestamped transcript | `test_transcript_has_timestamps` | To be implemented |
-| FR-13 | Core | English/Chinese support | `test_transcription_en_zh` | To be implemented |
-| FR-14 | Core | Auto language detection | `test_auto_language_detection` | To be implemented |
-| FR-15 | Core | Transcription failure handling | `test_transcription_failure_halts_pipeline` | To be implemented |
-| FR-16 | Core | Timestamp-based subtitle segmentation | `test_subtitle_segmentation` | To be implemented |
-| FR-17 | Core | Subtitle text translation | `test_subtitle_translation` | To be implemented |
-| FR-18 | Core | Bilingual .srt output | `test_bilingual_srt_output` | To be implemented |
-| FR-19 | Core | .vtt output support | `test_vtt_output` | To be implemented |
-| FR-20 | Extension | Subtitle embedding into video | `test_subtitle_embedding` | To be implemented |
-| FR-21 | Extension | Near-real-time translation | `test_realtime_translation_latency` | To be implemented |
-| FR-22 | Core | Generate summary | `test_summary_generation` | To be implemented |
-| FR-23 | Core | Keyword extraction | `test_keyword_extraction` | To be implemented |
-| FR-24 | Core | Main points extraction | `test_main_points_extraction` | To be implemented |
-| FR-25 | Core | Save summary output file | `test_summary_output_file` | To be implemented |
-| FR-26 | Extension | Chapter/topic division | `test_chapter_division` | To be implemented |
-| FR-27 | Extension | Offline local LLM summarization | `test_offline_llm_summarization` | To be implemented |
-| FR-28 | Core | CLI argument parsing | `test_cli_argument_parsing` | To be implemented |
-| FR-29 | Core | CLI subtitle format selection | `test_cli_format_selection` | To be implemented |
-| FR-30 | Core | CLI progress messages | Manual walkthrough | To be implemented |
-| FR-31 | Core | CLI prints output locations | `test_cli_prints_output_paths` | To be implemented |
-| FR-32 | Core | CLI error reporting & exit code | `test_cli_error_exit_code` | To be implemented |
-| FR-33 | Extension | GUI core controls | Manual walkthrough | To be implemented |
-| FR-34 | Extension | GUI subtitle preview | Manual walkthrough | To be implemented |
-| FR-35 | Extension | GUI summary preview | Manual walkthrough | To be implemented |
-| FR-36 | Extension | GUI open-output-folder control | Manual walkthrough | To be implemented |
-| FR-37 | Extension | GUI shares CLI backend | `test_gui_cli_backend_parity` | To be implemented |
-| FR-38 | Extension | GUI cancel in-progress run | Manual walkthrough | To be implemented |
-| FR-39 | Core | Error handling for all failure categories | `test_error_handling_all_categories` | To be implemented |
-| FR-40 | Core | Processing log written per run | `test_processing_log_written` | To be implemented |
-| FR-41 | Core | GUI surfaces errors to user | Manual walkthrough | To be implemented |
+| FR-07 | Core | Extract audio via FFmpeg | `test_ffmpeg_audio_extraction` | Implemented |
+| FR-08 | Core | Convert to WAV/MP3/M4A | `test_audio_format_conversion` | Implemented |
+| FR-09 | Core | Convert to ASR-ready format | `test_audio_converted_to_asr_format` | Implemented |
+| FR-10 | Core | Split long audio & reassemble timeline | `test_audio_split_and_timeline_merge` | Implemented |
+| FR-11 | Core | ASR transcription | `test_asr_transcription` | Implemented |
+| FR-12 | Core | Timestamped transcript | `test_transcript_has_timestamps` | Implemented |
+| FR-13 | Core | English/Chinese support | `test_transcription_en_zh` | Implemented |
+| FR-14 | Core | Auto language detection | `test_auto_language_detection` | Implemented |
+| FR-15 | Core | Transcription failure handling | `test_transcription_failure_halts_pipeline_empty_result`, `test_transcription_failure_halts_pipeline_exception` | Implemented |
+| FR-16 | Core | Timestamp-based subtitle segmentation | `test_subtitle_segmentation` | Implemented |
+| FR-17 | Core | Subtitle text translation | `test_subtitle_translation` | Implemented |
+| FR-18 | Core | Bilingual .srt output | `test_bilingual_srt_output` | Implemented |
+| FR-19 | Core | .vtt output support | `test_vtt_output` | Implemented |
+| FR-20 | Extension | Subtitle embedding into video | `test_subtitle_embedding` | Not implemented (extension) |
+| FR-21 | Extension | Near-real-time translation | `test_realtime_translation_latency` | Not implemented (extension) |
+| FR-22 | Core | Generate summary | `test_summary_generation` | Implemented |
+| FR-23 | Core | Keyword extraction | `test_keyword_extraction` | Implemented |
+| FR-24 | Core | Main points extraction | `test_main_points_extraction` | Implemented |
+| FR-25 | Core | Save summary output file | `test_summary_output_file` | Implemented |
+| FR-26 | Extension | Chapter/topic division | `test_chapter_division` | Not implemented (extension) |
+| FR-27 | Extension | Offline local LLM summarization | `test_offline_llm_summarization` | Not implemented (extension) |
+| FR-28 | Core | CLI argument parsing | `test_cli_argument_parsing` | Implemented |
+| FR-29 | Core | CLI subtitle format selection | `test_cli_format_selection` | Implemented |
+| FR-30 | Core | CLI progress messages | `test_pipeline_url_path_and_progress_callbacks`; real CLI run | Implemented |
+| FR-31 | Core | CLI prints output locations | `test_cli_prints_output_paths` | Implemented |
+| FR-32 | Core | CLI error reporting & exit code | `test_cli_error_exit_code` | Implemented |
+| FR-33 | Extension | GUI core controls | `test_gui_options_map_to_backend`, `test_gui_rejects_missing_input`; real GUI run | Implemented |
+| FR-34 | Extension | GUI subtitle preview | `test_gui_preview_success_and_state_recovery`; real GUI run | Implemented |
+| FR-35 | Extension | GUI summary preview | `test_gui_preview_success_and_state_recovery`; real GUI run | Implemented |
+| FR-36 | Extension | GUI open-output-folder control | `test_open_directory_uses_safe_argument_list`, `test_gui_open_directory_failure` | Implemented |
+| FR-37 | Extension | GUI shares CLI backend | `test_gui_cli_backend_parity` | Implemented |
+| FR-38 | Extension | GUI cancel in-progress run | `test_worker_cancel_blocks_restart_until_current_stage_returns`, `test_pipeline_cancel_*` | Implemented |
+| FR-39 | Core | Error handling for all failure categories | `tests/test_error_handling.py` (10 tests; 8 of the 9 listed categories - API timeout is not tested) | Implemented |
+| FR-40 | Core | Processing log written per run | `test_processing_log_written` | Implemented |
+| FR-41 | Core | GUI surfaces errors to user | `test_gui_failure_restores_controls_and_surfaces_error` | Implemented |
 
 ---
 

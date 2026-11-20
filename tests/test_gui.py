@@ -296,3 +296,21 @@ def test_batch_download_worker_reports_error(monkeypatch):
     worker.thread.join(timeout=5)
     assert not worker.running
     assert worker.events.get_nowait() == ("error", "max_workers must be at least 1")
+
+
+def test_gui_builds_full_widget_tree():
+    """Regression for c9c88d5: SmartMediaApp.__init__ crashed because the
+    preview ttk.Notebook was never constructed. Mock-based tests never build
+    the widget tree, so construct the real window (skipped without a display)."""
+    tk = pytest.importorskip("tkinter")
+    try:
+        root = tk.Tk()
+    except tk.TclError as exc:
+        pytest.skip(f"no display available: {exc}")
+    root.withdraw()
+    try:
+        app = gui_app.SmartMediaApp(root)
+        assert app.previews.winfo_class() == "TNotebook"
+        assert len(app.previews.tabs()) == 2
+    finally:
+        root.destroy()

@@ -18,6 +18,7 @@ SUBTITLE_FORMATS = ("srt", "vtt")
 
 @dataclass(frozen=True)
 class PipelineOptions:
+    """Inputs for one run: exactly one of file or url, plus languages, subtitle format and output directory."""
     file: str | None = None
     url: str | None = None
     source: str | None = None
@@ -27,10 +28,12 @@ class PipelineOptions:
 
 
 class PipelineCancelled(Exception):
+    """Raised when the cancel event is set; no further stage starts (FR-38)."""
     pass
 
 
 class PipelineLogError(RuntimeError):
+    """Raised when the processing log itself cannot be written (FR-40)."""
     pass
 
 
@@ -39,6 +42,16 @@ def run_pipeline(
     on_progress: Callable[[str], None] | None = None,
     cancel_event: Event | None = None,
 ) -> dict[str, Path]:
+    """Run import/download -> audio -> transcription -> subtitles -> summary (NFR-03).
+
+    The CLI and the GUI both call this function, so the business logic exists
+    once. on_progress receives the name of each stage as it starts, and
+    cancel_event is checked at every stage boundary. A processing log is written
+    for every run, also when it fails or is cancelled (FR-40).
+
+    Returns a dict with the audio, transcript, subtitles, summary and log paths.
+    Raises ValueError for invalid options, PipelineCancelled when cancelled, and
+    the failing stage's own error otherwise."""
     log = ProcessingLog(options.output_dir)
     current_stage = "input"
     failure = None
