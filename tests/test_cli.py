@@ -72,7 +72,7 @@ def _patch_pipeline(tmp_path, monkeypatch):
         pipeline,
         "translate_segments",
         lambda segments, source, target: [
-            {**seg, "translated_text": "你好世界。"} for seg in segments
+            {**seg, "translated_text": "\u4f60\u597d\u4e16\u754c\u3002"} for seg in segments
         ],
     )
     monkeypatch.setattr(

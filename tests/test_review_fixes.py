@@ -14,15 +14,15 @@ import ai_engine
 import summarizer
 from media_processor import AudioExtractionError, get_audio_duration
 
-CHINESE_TEXT = "今天天气很好。我们去公园玩。明天会下雨。我们留在家里。后天又是晴天。"
+CHINESE_TEXT = "\u4eca\u5929\u5929\u6c14\u5f88\u597d\u3002\u6211\u4eec\u53bb\u516c\u56ed\u73a9\u3002\u660e\u5929\u4f1a\u4e0b\u96e8\u3002\u6211\u4eec\u7559\u5728\u5bb6\u91cc\u3002\u540e\u5929\u53c8\u662f\u6674\u5929\u3002"
 
 
 def test_chinese_text_is_split_into_sentences():
-    """F1: Chinese sentences have no space after 。 and were treated as one sentence."""
+    """F1: Chinese sentences have no space after the full-width full stop and were treated as one sentence."""
     sentences = summarizer._split_sentences(CHINESE_TEXT)
 
     assert len(sentences) == 5
-    assert sentences[0] == "今天天气很好。"
+    assert sentences[0] == "\u4eca\u5929\u5929\u6c14\u5f88\u597d\u3002"
 
 
 def test_chinese_summary_is_shorter_than_the_whole_text():

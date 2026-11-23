@@ -20,10 +20,11 @@ _STOPWORDS = {
     "because", "which", "who", "what", "when", "where", "how",
 }
 
-_WORD_RE = re.compile(r"[A-Za-z']+|[一-鿿]")
-# English sentences end with punctuation + whitespace; Chinese ones end with
-# 。！？ and are usually NOT followed by whitespace, so split there as well.
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[。！？])|(?<=[.!?])\s+")
+_WORD_RE = re.compile(r"[A-Za-z']+|[\u4e00-\u9fff]")
+# English sentences end with punctuation + whitespace. Chinese ones end with the
+# full-width full stop, exclamation mark or question mark (U+3002, U+FF01, U+FF1F)
+# and are usually NOT followed by whitespace, so split right after them as well.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[\u3002\uff01\uff1f])|(?<=[.!?])\s+")
 
 
 def _split_sentences(text: str) -> list[str]:

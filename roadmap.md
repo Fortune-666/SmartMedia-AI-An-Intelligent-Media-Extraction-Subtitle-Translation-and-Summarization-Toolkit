@@ -1,165 +1,165 @@
-# SmartMedia-AI 实现路线图 (Roadmap)
+# SmartMedia-AI Implementation Roadmap
 
-**文档版本**：v1.0
-**编写日期**：2026-10-12
-**依据文档**：`specification.md` / `specification (中文版).md`
+**Document version**: v1.0
+**Date written**: 2026-10-12
+**Based on**: `specification.md`
 
-本路线图把 SRS 中的 41 条功能需求（FR-01~41）拆解为可以**一步一步独立完成、独立验收**的开发步骤，而不是要求一次性全部做完。核心思路：先跑通一条"最薄"的端到端流水线（本地文件 → 音频 → 转写文本，不含下载、不含翻译、不含GUI），再一个能力一个能力地往外扩展。
+This roadmap breaks the 41 functional requirements of the SRS (FR-01 to FR-41) into development steps that can be **completed and accepted one at a time**, instead of asking the team to finish everything at once. The core idea: first get the thinnest end-to-end pipeline working (local file -> audio -> transcript text, without download, translation or GUI), then extend it one capability at a time.
 
-每完成一步，建议回到 `specification.md` 附录A，把对应需求的"状态"列从"待实现"改为"已完成"，让 SRS 变成全队共享的实时进度看板。
+After each step, go back to Appendix A of `specification.md` and change the "Status" column of the matching requirements from "To be implemented" to "Implemented", so that the SRS becomes a live progress board shared by the whole team.
 
 ---
 
-## 阶段 0 —— 脚手架搭建（在做任何功能之前）
+## Phase 0 - Scaffold (before any feature)
 
-这本身不算功能，但对应 C4、C6、NFR-01、NFR-07、IFR-06，是后续一切的前提。
+This is not a feature by itself, but it covers C4, C6, NFR-01, NFR-07 and IFR-06, and everything later depends on it.
 
-| 步骤 | 要做什么 | 对应需求 | 建议负责人 |
+| Step | What to do | Requirements | Suggested owner |
 |---|---|---|---|
-| 0.1 | 搭建仓库结构（`main.py`、`cli_main.py`、`downloader.py`、`media_processor.py`、`ai_engine.py`、`subtitle_generator.py`、`summarizer.py`、`config.py`、`utils.py`、`tests/`），`requirements.txt`，`.gitignore` 排除 `.env`/配置文件 | NFR-01, C6 | 成员 A |
-| 0.2 | `config.py` 从环境变量/`.env` 读取 API 密钥 | IFR-06, C4, NFR-07 | 成员 A |
-| 0.3 | 空的 pytest 文件 + GitHub Actions 工作流（能安装依赖并跑 pytest，哪怕现在一个测试都没有，也要从第一天就把这条流水线立起来） | NFR-09 | 成员 F |
+| 0.1 | Set up the repository structure (`main.py`, `cli_main.py`, `downloader.py`, `media_processor.py`, `ai_engine.py`, `subtitle_generator.py`, `summarizer.py`, `config.py`, `utils.py`, `tests/`), `requirements.txt`, and a `.gitignore` that excludes `.env` and configuration files | NFR-01, C6 | Member A |
+| 0.2 | `config.py` reads API keys from environment variables / `.env` | IFR-06, C4, NFR-07 | Member A |
+| 0.3 | An empty pytest file and a GitHub Actions workflow (it installs the dependencies and runs pytest; even with no test yet, the pipeline must stand from day one) | NFR-09 | Member F |
 
-**完成标志**：`pip install -r requirements.txt` 能成功，CI 在空测试套件上跑绿。
-
----
-
-## 阶段 1 —— 核心流水线，一次只打通一条"纵切片"
-
-下面每一步都应该可以独立运行、独立提交 git commit，再开始下一步。
-
-### 第1步：本地文件进，本地文件出（先不做任何处理）
-
-- **实现**：`downloader.py` 接受本地文件路径，校验文件存在且扩展名受支持。
-- **CLI 占位**：`python main.py --file <path>` 先只打印"文件已接受"或报错。
-- **对应需求**：FR-02、FR-03（本地文件那部分）、FR-04
-- **测试**：`test_import_local_file`、`test_validate_url_and_file_input`（只测文件分支）
-- **验收方式**：拿一个真实视频文件跑通；拿一个不存在/扩展名错误的文件跑，应该清晰报错而不是崩溃。
-
-### 第2步：FFmpeg 音频提取
-
-- **实现**：`media_processor.py` 从第1步的文件里提取音频，转成 16kHz 单声道 WAV。
-- **对应需求**：FR-07、FR-08、FR-09
-- **测试**：`test_ffmpeg_audio_extraction`、`test_audio_format_conversion`、`test_audio_converted_to_asr_format`
-- **验收方式**：打开生成的 WAV 能听到原始音频；用 `ffprobe` 确认是 16kHz 单声道。
-
-### 第3步：语音转写（第一次接入 AI）
-
-- **实现**：`ai_engine.py` 调用 Whisper（或选定的 ASR），对第2步的 WAV 转写，返回带时间戳的文本。
-- **对应需求**：FR-11、FR-12、FR-13、FR-14、FR-15
-- **测试**：`test_asr_transcription`、`test_transcript_has_timestamps`、`test_transcription_en_zh`、`test_auto_language_detection`、`test_transcription_failure_halts_pipeline`（用一段静音/损坏的音频测）
-- **验收方式**：转写结果大致能对上测试片段里说的内容，时间戳合理。
-
-> **里程碑检查点**：走到这里，已经有一条完整（虽然窄）的流水线：本地视频 → 音频 → 转写文本。建议先暂停，确认架构没问题，再往下加功能。
-
-### 第4步：双语字幕
-
-- **实现**：`subtitle_generator.py` 把第3步的转写文本分段、逐段翻译、生成双语 `.srt`。
-- **对应需求**：FR-16、FR-17、FR-18
-- **测试**：`test_subtitle_segmentation`、`test_subtitle_translation`、`test_bilingual_srt_output`
-- **验收方式**：用 VLC 或文本编辑器打开 `.srt`，每条字幕都同时有原文和译文，时间轴对得上。
-
-### 第5步：摘要 + 关键词
-
-- **实现**：`summarizer.py` 拿第3步的转写文本生成摘要/关键词/要点，写成文本文件。
-- **对应需求**：FR-22、FR-23、FR-24、FR-25
-- **测试**：`test_summary_generation`、`test_keyword_extraction`、`test_main_points_extraction`、`test_summary_output_file`
-- **验收方式**：摘要读起来是通顺的一段话，不是乱码；关键词看着跟片段主题相关。
-
-> 第4步和第5步都只依赖第3步的输出，彼此独立——适合两个人并行做。提案里这两块都归成员E负责，但如果时间紧，可以拆给两个人同时推进。
-
-### 第6步：`.vtt` 导出
-
-- **实现**：在 `subtitle_generator.py` 里，除了 `.srt` 再加一种 `.vtt` 输出。
-- **对应需求**：FR-19
-- **测试**：`test_vtt_output`
-- **验收方式**：第4步跑通后这一步很简单，基本就是多写一个格式转换器。
-
-### 第7步：URL 下载（把输入端打开）
-
-- **实现**：给 `downloader.py` 加上 yt-dlp 支持，显示下载进度。
-- **对应需求**：FR-01、FR-05、FR-03（URL 那部分）
-- **测试**：`test_download_via_url`、`test_download_progress_indicator`
-- **验收方式**：输入一个合法的测试 URL，能得到和本地文件一样的后续流水线结果。
-
-> **为什么下载放在转写/字幕/摘要之后，而不是最先做？** 下载是整个流程里最容易出问题、最不可控的一环（网站兼容性、网络、版权访问权限）。先针对一个本地测试文件把第2~6步的流水线搭好、测好，这样这几步的开发和测试完全不依赖网络；`downloader.py` 做好之后，直接接入作为输入源即可。
-
-### 第8步：长音频切分
-
-- **实现**：对超过可配置时长阈值的音频做切分，再把转写结果的时间线重新拼接起来。
-- **对应需求**：FR-10
-- **测试**：`test_audio_split_and_timeline_merge`
-- **验收方式**：拿一个长（比如1小时以上）的测试文件跑，转写时间戳在拼接处依然连续、顺序正确。
+**Done when**: `pip install -r requirements.txt` succeeds and CI is green on the empty test suite.
 
 ---
 
-## 阶段 2 —— 给核心流水线加固、包装
+## Phase 1 - Core pipeline, one "vertical slice" at a time
 
-### 第9步：全流程错误处理
+Each step below must be runnable on its own and committed to git before the next step starts.
 
-- 回头给第1~8步补上 SRS 里列出的那一整套失败处理（无效链接、不支持的格式、下载失败、网络中断、FFmpeg 报错、缺依赖、API 超时、API 密钥无效、音频为空/质量差）。
-- 加上处理日志写入功能。
-- **对应需求**：FR-39、FR-40
-- **测试**：`test_error_handling_all_categories`（逐个 mock 模拟每种失败）、`test_processing_log_written`
-- **为什么放到现在而不是更早**：流水线各阶段都还没搭出来之前，错误处理无从包起。等阶段都齐了之后统一补一遍，比每一步都零散加一点更一致、更不容易漏。
+### Step 1: Local file in, local file out (no processing yet)
 
-### 第10步：正式 CLI
+- **Implement**: `downloader.py` accepts a local file path and checks that the file exists and the extension is supported.
+- **CLI placeholder**: `python main.py --file <path>` only prints "file accepted" or an error.
+- **Requirements**: FR-02, FR-03 (local-file part), FR-04
+- **Tests**: `test_import_local_file`, `test_validate_url_and_file_input` (file branch only)
+- **Acceptance**: run it on a real video file; run it on a missing file and a file with a wrong extension, which must give a clear error instead of a crash.
 
-- 把第1步那个占位的 CLI 换成正式的基于 `argparse`/Click 的实现：`--url`/`--file`、`--source`、`--target`、输出格式选择、每阶段进度打印、成功后打印输出路径、失败时返回非零退出码。
-- **对应需求**：FR-28、FR-29、FR-30、FR-31、FR-32
-- **测试**：`test_cli_argument_parsing`、`test_cli_format_selection`、`test_cli_prints_output_paths`、`test_cli_error_exit_code`
+### Step 2: FFmpeg audio extraction
 
-### 第11步：补齐测试覆盖 + CI 把关
+- **Implement**: `media_processor.py` extracts the audio of the file from step 1 and converts it to 16 kHz mono WAV.
+- **Requirements**: FR-07, FR-08, FR-09
+- **Tests**: `test_ffmpeg_audio_extraction`, `test_audio_format_conversion`, `test_audio_converted_to_asr_format`
+- **Acceptance**: the generated WAV plays the original audio; `ffprobe` confirms 16 kHz mono.
 
-- 把各模块的单元测试覆盖补全（按 NFR-06 的要求，外部服务都用 mock，CI 里不发真实网络请求/API 调用）。
-- 加上端到端集成测试（下载模块 → 处理模块 → AI 引擎 → 字幕生成模块 → 摘要模块），拿一个真实样例视频跑一遍。
-- 确认 GitHub Actions 能跑完整测试套件并报告失败。
-- **对应需求**：NFR-06、NFR-09，以及 SRS §5.2 里的集成测试
+### Step 3: Speech transcription (first use of AI)
 
-> **🎯 里程碑：核心范围（Core）完成。** 以上全部对应 SRS §5.4 验收标准的第1~4条。走到这里，已经有一个满足 SRS 里全部【核心】需求的、能完整跑起来的 CLI 工具——跟任何扩展功能是否做完全无关。
+- **Implement**: `ai_engine.py` calls Whisper (or the chosen ASR) on the WAV of step 2 and returns text with timestamps.
+- **Requirements**: FR-11, FR-12, FR-13, FR-14, FR-15
+- **Tests**: `test_asr_transcription`, `test_transcript_has_timestamps`, `test_transcription_en_zh`, `test_auto_language_detection`, `test_transcription_failure_halts_pipeline` (use a silent or broken audio file)
+- **Acceptance**: the transcript roughly matches what is said in the test clip, and the timestamps are reasonable.
+
+> **Milestone checkpoint**: at this point there is a complete (although narrow) pipeline: local video -> audio -> transcript text. Pause here, confirm the architecture is sound, then add more features.
+
+### Step 4: Bilingual subtitles
+
+- **Implement**: `subtitle_generator.py` splits the transcript of step 3 into segments, translates each segment, and writes a bilingual `.srt`.
+- **Requirements**: FR-16, FR-17, FR-18
+- **Tests**: `test_subtitle_segmentation`, `test_subtitle_translation`, `test_bilingual_srt_output`
+- **Acceptance**: open the `.srt` in VLC or a text editor; every subtitle entry has the original line and the translation, and the timing fits.
+
+### Step 5: Summary and keywords
+
+- **Implement**: `summarizer.py` takes the transcript of step 3 and produces a summary, keywords and main points, written to a text file.
+- **Requirements**: FR-22, FR-23, FR-24, FR-25
+- **Tests**: `test_summary_generation`, `test_keyword_extraction`, `test_main_points_extraction`, `test_summary_output_file`
+- **Acceptance**: the summary reads as a fluent paragraph, not garbled text; the keywords match the topic of the clip.
+
+> Steps 4 and 5 depend only on the output of step 3 and are independent of each other, so two people can work on them in parallel. The proposal gives both to Member E, but if time is short they can be split between two people.
+
+### Step 6: `.vtt` export
+
+- **Implement**: in `subtitle_generator.py`, add a `.vtt` output next to `.srt`.
+- **Requirements**: FR-19
+- **Tests**: `test_vtt_output`
+- **Acceptance**: after step 4 this step is easy; it is mainly one more format converter.
+
+### Step 7: URL download (open the input side)
+
+- **Implement**: add yt-dlp support to `downloader.py`, with a download progress display.
+- **Requirements**: FR-01, FR-05, FR-03 (URL part)
+- **Tests**: `test_download_via_url`, `test_download_progress_indicator`
+- **Acceptance**: a valid test URL gives the same downstream pipeline result as a local file.
+
+> **Why is download built after transcription, subtitles and summary instead of first?** Download is the part of the workflow most likely to fail and the least controllable (website compatibility, network, access rights). First build and test steps 2-6 on a local test file, so their development and tests do not depend on the network at all; once `downloader.py` is ready, it plugs in as an input source.
+
+### Step 8: Long-audio splitting
+
+- **Implement**: split audio longer than a configurable duration threshold, then merge the timelines of the transcription results again.
+- **Requirements**: FR-10
+- **Tests**: `test_audio_split_and_timeline_merge`
+- **Acceptance**: run a long test file (for example over one hour); the transcript timestamps stay continuous and in the right order at the joins.
 
 ---
 
-## 阶段 3 —— 扩展功能（只在核心跑稳之后再做，顺序可按剩余时间灵活调整）
+## Phase 2 - Harden and package the core pipeline
 
-这几项彼此独立，可以根据 11月26日 前剩余的时间自由排序（对应约束 C8）。
+### Step 9: Error handling for the whole flow
 
-| 步骤 | 功能 | 对应需求 | 建议优先级 |
+- Go back to steps 1-8 and add the full set of failure handling listed in the SRS (invalid link, unsupported format, download failure, network interruption, FFmpeg error, missing dependency, API timeout, invalid API key, empty or poor-quality audio).
+- Add the processing log.
+- **Requirements**: FR-39, FR-40
+- **Tests**: `test_error_handling_all_categories` (mock every failure one by one), `test_processing_log_written`
+- **Why now and not earlier**: error handling has nothing to wrap before the stages exist. Adding it once all stages are in place is more consistent and less likely to miss something than adding a little at every step.
+
+### Step 10: Formal CLI
+
+- Replace the placeholder CLI of step 1 with a proper `argparse`/Click implementation: `--url`/`--file`, `--source`, `--target`, output format choice, progress printing for every stage, output paths printed on success, and a non-zero exit code on failure.
+- **Requirements**: FR-28, FR-29, FR-30, FR-31, FR-32
+- **Tests**: `test_cli_argument_parsing`, `test_cli_format_selection`, `test_cli_prints_output_paths`, `test_cli_error_exit_code`
+
+### Step 11: Complete test coverage and CI gate
+
+- Complete the unit tests of every module (per NFR-06, all external services are mocked; CI makes no real network request or API call).
+- Add the end-to-end integration test (download module -> processing module -> AI engine -> subtitle module -> summary module) on a real sample video.
+- Confirm that GitHub Actions runs the whole test suite and reports failures.
+- **Requirements**: NFR-06, NFR-09, and the integration tests of SRS section 5.2
+
+> **Milestone: Core scope complete.** All of the above matches items 1-4 of the SRS section 5.4 acceptance criteria. At this point there is a CLI tool that runs end to end and satisfies every Core requirement of the SRS, whether or not any extension is finished.
+
+---
+
+## Phase 3 - Extensions (only after the core is stable; the order can follow the remaining time)
+
+These items are independent of each other and can be ordered freely according to the time left before 26 November (constraint C8).
+
+| Step | Feature | Requirements | Suggested priority |
 |---|---|---|---|
-| 12 | GUI（Tkinter/PySide6），直接复用阶段1~2的后端，不改动它 | FR-33~38, NFR-03 | 最高——提案的演示计划里明确要用 |
-| 13 | 多线程下载 | FR-06 | 中等 |
-| 14 | 摘要按章节/主题划分 | FR-26 | 中等 |
-| 15 | 字幕嵌入视频 | FR-20 | 较低 |
-| 16 | 离线本地大模型做摘要 | FR-27 | 较低 |
-| 17 | 近实时翻译 | FR-21 | 最低——提案自己也把这个定义为难度最高的加分项 |
+| 12 | GUI (Tkinter/PySide6) that reuses the backend of phases 1-2 without changing it | FR-33 to 38, NFR-03 | Highest - the demonstration plan of the proposal explicitly uses it |
+| 13 | Multi-threaded download | FR-06 | Medium |
+| 14 | Summary divided by chapter / topic | FR-26 | Medium |
+| 15 | Subtitle embedding into the video | FR-20 | Lower |
+| 16 | Offline local LLM for the summary | FR-27 | Lower |
+| 17 | Near-real-time translation | FR-21 | Lowest - the proposal itself calls this the hardest bonus item |
 
-> 关于第12步：之所以要先做 CLI、后做 GUI，就是为了让第12步的 GUI 变得"薄"——它应该只负责调用阶段1~2已经写好的后端函数、把结果渲染出来，绝不应该重新实现一遍流水线逻辑（这正是 FR-37/NFR-03 要验证的：如果同样的输入，GUI 跑出来的结果和 CLI 跑出来的不一样，那就是个 bug）。
+> About step 12: the CLI is built before the GUI so that the GUI of step 12 stays "thin". It should only call the backend functions already written in phases 1-2 and show the result, and must never re-implement the pipeline logic (this is exactly what FR-37/NFR-03 verify: if the same input gives a different result in the GUI than in the CLI, that is a bug).
 
 ---
 
-## 整体进度总览表
+## Overall progress
 
-| 阶段 | 步骤 | 状态 |
+| Phase | Step | Status |
 |---|---|---|
-| 0 | 0.1 仓库结构 / 0.2 配置管理 / 0.3 CI 空跑 | 已完成 |
-| 1 | 1. 本地文件导入 | 已完成 |
-| 1 | 2. FFmpeg 音频提取 | 已完成 |
-| 1 | 3. 语音转写 | 已完成 |
-| 1 | 4. 双语字幕 | 已完成 |
-| 1 | 5. 摘要 + 关键词 | 已完成 |
-| 1 | 6. .vtt 导出 | 已完成 |
-| 1 | 7. URL 下载 | 已完成 |
-| 1 | 8. 长音频切分 | 已完成 |
-| 2 | 9. 全流程错误处理 | 已完成 |
-| 2 | 10. 正式 CLI | 已完成 |
-| 2 | 11. 测试覆盖 + CI 把关 | 已完成 |
-| 3 | 12. GUI | 已完成 |
-| 3 | 13. 多线程下载 | 已完成 |
-| 3 | 14. 章节/主题划分 | 待开始 |
-| 3 | 15. 字幕嵌入视频 | 待开始 |
-| 3 | 16. 离线本地大模型 | 待开始 |
-| 3 | 17. 近实时翻译 | 待开始 |
+| 0 | 0.1 repository structure / 0.2 configuration / 0.3 CI on an empty suite | Done |
+| 1 | 1. Local file import | Done |
+| 1 | 2. FFmpeg audio extraction | Done |
+| 1 | 3. Speech transcription | Done |
+| 1 | 4. Bilingual subtitles | Done |
+| 1 | 5. Summary and keywords | Done |
+| 1 | 6. .vtt export | Done |
+| 1 | 7. URL download | Done |
+| 1 | 8. Long-audio splitting | Done |
+| 2 | 9. Error handling for the whole flow | Done |
+| 2 | 10. Formal CLI | Done |
+| 2 | 11. Test coverage and CI gate | Done |
+| 3 | 12. GUI | Done |
+| 3 | 13. Multi-threaded download | Done |
+| 3 | 14. Chapter / topic division | Not started |
+| 3 | 15. Subtitle embedding into the video | Not started |
+| 3 | 16. Offline local LLM | Not started |
+| 3 | 17. Near-real-time translation | Not started |
 
 ---
 
-*本路线图是 `specification.md` 的配套实施计划，不替代 SRS 本身。开发过程中如发现某一步的实现方式与 SRS 描述不一致，应以 SRS 为准，必要时先修订 SRS，再继续开发，保持需求与代码的一致性（Traceability）。*
+*This roadmap is the implementation plan that goes with `specification.md`; it does not replace the SRS itself. If during development the implementation of a step differs from the SRS description, the SRS prevails; if necessary, revise the SRS first and then continue, so that requirements and code stay consistent (traceability).*

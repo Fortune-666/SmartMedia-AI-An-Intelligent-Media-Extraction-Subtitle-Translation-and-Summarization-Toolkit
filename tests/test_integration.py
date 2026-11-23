@@ -47,8 +47,8 @@ def _mock_whisper_model():
 
 def _mock_translation():
     translation_table = {
-        "Hello from the integration test.": "来自集成测试的问候。",
-        "This covers the full pipeline.": "这覆盖了完整的流水线。",
+        "Hello from the integration test.": "\u6765\u81ea\u96c6\u6210\u6d4b\u8bd5\u7684\u95ee\u5019\u3002",
+        "This covers the full pipeline.": "\u8fd9\u8986\u76d6\u4e86\u5b8c\u6574\u7684\u6d41\u6c34\u7ebf\u3002",
     }
 
     mock_translation = MagicMock()
@@ -114,7 +114,7 @@ def test_full_pipeline_integration_local_file(tmp_path, capsys):
     # bilingual subtitle content must contain both source and translated text
     srt_content = (output_dir / "subtitles.srt").read_text(encoding="utf-8")
     assert "Hello from the integration test." in srt_content
-    assert "来自集成测试的问候。" in srt_content
+    assert "\u6765\u81ea\u96c6\u6210\u6d4b\u8bd5\u7684\u95ee\u5019\u3002" in srt_content
 
     # the processing log must record every stage that ran
     log_content = (output_dir / "processing.log").read_text(encoding="utf-8")

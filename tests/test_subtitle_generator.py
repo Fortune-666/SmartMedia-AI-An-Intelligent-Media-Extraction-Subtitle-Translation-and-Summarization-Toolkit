@@ -52,7 +52,7 @@ def test_subtitle_translation():
     ]
 
     mock_argostranslate, mock_translation = _mock_translation_module(
-        lambda text: {"Hello world.": "你好世界。", "Good morning.": "早上好。"}[text]
+        lambda text: {"Hello world.": "\u4f60\u597d\u4e16\u754c\u3002", "Good morning.": "\u65e9\u4e0a\u597d\u3002"}[text]
     )
 
     with patch.dict(
@@ -65,8 +65,8 @@ def test_subtitle_translation():
     ):
         result = translate_segments(segments, "en", "zh")
 
-    assert result[0]["translated_text"] == "你好世界。"
-    assert result[1]["translated_text"] == "早上好。"
+    assert result[0]["translated_text"] == "\u4f60\u597d\u4e16\u754c\u3002"
+    assert result[1]["translated_text"] == "\u65e9\u4e0a\u597d\u3002"
     assert result[0]["text"] == "Hello world."
 
 
@@ -88,8 +88,8 @@ def test_subtitle_translation_missing_language_pair():
 
 def test_bilingual_srt_output(tmp_path):
     translated_segments = [
-        {"start": 0.0, "end": 2.5, "text": "Hello world.", "translated_text": "你好世界。"},
-        {"start": 2.5, "end": 5.0, "text": "Second line.", "translated_text": "第二行。"},
+        {"start": 0.0, "end": 2.5, "text": "Hello world.", "translated_text": "\u4f60\u597d\u4e16\u754c\u3002"},
+        {"start": 2.5, "end": 5.0, "text": "Second line.", "translated_text": "\u7b2c\u4e8c\u884c\u3002"},
     ]
     output_file = tmp_path / "output.srt"
 
@@ -97,7 +97,7 @@ def test_bilingual_srt_output(tmp_path):
 
     content = result_path.read_text(encoding="utf-8")
     assert "Hello world." in content
-    assert "你好世界。" in content
+    assert "\u4f60\u597d\u4e16\u754c\u3002" in content
     assert "00:00:00,000 --> 00:00:02,500" in content
     assert "00:00:02,500 --> 00:00:05,000" in content
     assert content.strip().startswith("1")
@@ -105,8 +105,8 @@ def test_bilingual_srt_output(tmp_path):
 
 def test_vtt_output(tmp_path):
     translated_segments = [
-        {"start": 0.0, "end": 2.5, "text": "Hello world.", "translated_text": "你好世界。"},
-        {"start": 2.5, "end": 5.0, "text": "Second line.", "translated_text": "第二行。"},
+        {"start": 0.0, "end": 2.5, "text": "Hello world.", "translated_text": "\u4f60\u597d\u4e16\u754c\u3002"},
+        {"start": 2.5, "end": 5.0, "text": "Second line.", "translated_text": "\u7b2c\u4e8c\u884c\u3002"},
     ]
     output_file = tmp_path / "output.vtt"
 
@@ -115,7 +115,7 @@ def test_vtt_output(tmp_path):
     content = result_path.read_text(encoding="utf-8")
     assert content.startswith("WEBVTT")
     assert "Hello world." in content
-    assert "你好世界。" in content
+    assert "\u4f60\u597d\u4e16\u754c\u3002" in content
     assert "00:00:00.000 --> 00:00:02.500" in content
     assert "00:00:02.500 --> 00:00:05.000" in content
     assert "," not in content.split("\n\n")[1]  # VTT uses '.' not ',' in timestamps

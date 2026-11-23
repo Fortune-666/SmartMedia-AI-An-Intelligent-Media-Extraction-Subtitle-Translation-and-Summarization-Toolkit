@@ -120,12 +120,12 @@ def _fake_view(tmp_path):
 def test_gui_preview_success_and_state_recovery(tmp_path):
     subtitles = tmp_path / "subtitles.srt"
     summary = tmp_path / "summary.txt"
-    subtitles.write_text("Hello\n你好", encoding="utf-8")
+    subtitles.write_text("Hello\n\u4f60\u597d", encoding="utf-8")
     summary.write_text("Summary\nKeywords", encoding="utf-8")
     app = _fake_view(tmp_path)
     app._finish("success", {"subtitles": subtitles, "summary": summary})
     assert not app.busy
-    app.subtitle_preview.insert.assert_called_once_with("1.0", "Hello\n你好")
+    app.subtitle_preview.insert.assert_called_once_with("1.0", "Hello\n\u4f60\u597d")
     app.summary_preview.insert.assert_called_once_with("1.0", "Summary\nKeywords")
     app.start_button.configure.assert_called_with(state="normal")
     app.cancel_button.configure.assert_called_with(state="disabled")
@@ -208,7 +208,7 @@ def test_gui_cli_backend_parity(tmp_path, monkeypatch, subtitle_format):
     def translate(segments, source, target):
         stages.append("translation")
         assert source == "en" and target == "zh"
-        return [{**seg, "translated_text": "测试译文"} for seg in segments]
+        return [{**seg, "translated_text": "\u6d4b\u8bd5\u8bd1\u6587"} for seg in segments]
 
     monkeypatch.setattr(pipeline, "extract_audio", extract)
     monkeypatch.setattr(pipeline, "get_audio_duration", lambda path: 3.0)

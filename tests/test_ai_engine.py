@@ -57,7 +57,7 @@ def test_transcription_en_zh(tmp_path):
     audio_file.write_bytes(b"fake wav")
 
     en_result = {"language": "en", "segments": [{"start": 0.0, "end": 1.0, "text": "Hello."}]}
-    zh_result = {"language": "zh", "segments": [{"start": 0.0, "end": 1.0, "text": "你好。"}]}
+    zh_result = {"language": "zh", "segments": [{"start": 0.0, "end": 1.0, "text": "\u4f60\u597d\u3002"}]}
 
     with patch("ai_engine._load_model", return_value=_mock_model(en_result)):
         result_en = transcribe_audio(str(audio_file), language="en")
@@ -72,7 +72,7 @@ def test_auto_language_detection(tmp_path):
     audio_file = tmp_path / "audio.wav"
     audio_file.write_bytes(b"fake wav")
 
-    whisper_result = {"language": "zh", "segments": [{"start": 0.0, "end": 1.0, "text": "你好。"}]}
+    whisper_result = {"language": "zh", "segments": [{"start": 0.0, "end": 1.0, "text": "\u4f60\u597d\u3002"}]}
     mock_model = _mock_model(whisper_result)
 
     with patch("ai_engine._load_model", return_value=mock_model):

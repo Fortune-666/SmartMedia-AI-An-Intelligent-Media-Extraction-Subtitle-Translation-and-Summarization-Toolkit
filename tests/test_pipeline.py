@@ -37,7 +37,7 @@ def _patch_happy_path(monkeypatch, tmp_path, calls=None):
         "segments": [{"start": 0.0, "end": 1.0, "text": "Hello world."}],
     })
     monkeypatch.setattr(pipeline, "translate_segments", lambda segments, source, target: [
-        {**seg, "translated_text": "你好世界。"} for seg in segments
+        {**seg, "translated_text": "\u4f60\u597d\u4e16\u754c\u3002"} for seg in segments
     ])
     monkeypatch.setattr(pipeline, "generate_srt", lambda segments, path: output / "subtitles.srt")
     monkeypatch.setattr(pipeline, "generate_vtt", lambda segments, path: output / "subtitles.vtt")
@@ -130,7 +130,7 @@ def test_pipeline_cancel_prevents_downstream_after_translation(tmp_path, monkeyp
 
     def translate_then_cancel(segments, source, target):
         cancel.set()
-        return [{**seg, "translated_text": "你好世界。"} for seg in segments]
+        return [{**seg, "translated_text": "\u4f60\u597d\u4e16\u754c\u3002"} for seg in segments]
 
     monkeypatch.setattr(pipeline, "translate_segments", translate_then_cancel)
     generate_srt_calls = []
