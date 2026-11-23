@@ -29,3 +29,6 @@ summary.txt
 # IDE
 .idea/
 .vscode/
+
+# macOS
+.DS_Store

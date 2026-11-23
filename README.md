@@ -1,5 +1,50 @@
 # SmartMedia-AI
 
+Video / audio / URL in, **bilingual subtitles (SRT/VTT) and an extractive summary** out. Command line and Tkinter window share one pipeline (`pipeline.py`). Course project INT6181, Group 13.
+
+## Quick start (English)
+
+1. Python 3.10 in the conda environment `smart`, and **FFmpeg** on the PATH (`ffmpeg -version`):
+   ```bash
+   conda create -n smart python=3.10 && conda activate smart
+   pip install -r requirements.txt
+   ```
+2. **One-time downloads (need internet):**
+   - Whisper downloads its speech model the first time it runs.
+   - Translation needs the Argos language packages for the pair you use (English to Chinese and back):
+     ```bash
+     python - <<'PY'
+     import argostranslate.package as p
+     p.update_package_index()
+     for a in p.get_available_packages():
+         if (a.from_code, a.to_code) in {("en", "zh"), ("zh", "en")}:
+             p.install_from_path(a.download())
+     PY
+     ```
+   Without the package the tool stops with the message "No installed argostranslate language pair ... Install the matching language package first."
+3. Run:
+   ```bash
+   python main.py --file lecture.mp4 --target zh --format srt --output-dir output   # command line
+   python gui_app.py                                                              # window
+   ```
+   Output folder: `audio.wav`, `transcript.txt`, `subtitles.srt` (or `.vtt`), `summary.txt`, `processing.log`.
+4. **Play the subtitles in VLC.** The subtitle file is a separate file, so VLC does not load it by itself (its name and folder differ from the video):
+   1. Open the original video in VLC (for example `test_python.mp4`).
+   2. Menu **Subtitles -> Add Subtitle File...** and choose `subtitles.srt` from the output folder.
+   3. Play a part with speech: each entry shows the original line and, below it, the translation.
+   If Chinese characters look wrong (empty boxes), open **VLC -> Preferences -> Subtitles / OSD** and choose a font that has Chinese glyphs; the file is UTF-8. Subtitles are not burned into the video.
+5. Tests: `pytest tests` (110 tests, no internet or model needed; FFmpeg and Whisper are replaced by fakes).
+
+Third-party software used (not written by us): [OpenAI Whisper](https://github.com/openai/whisper) (speech to text), [FFmpeg](https://ffmpeg.org) (audio), [Argos Translate](https://github.com/argosopentech/argos-translate) (offline translation), [yt-dlp](https://github.com/yt-dlp/yt-dlp) (download), PyTorch, python-dotenv, pytest. Generative AI (Claude Code) helped with tests, the first code review pass and docstrings; a team member approves every change (rule C7, see `CODE_REVIEW.md`).
+
+Team (module owner): ZHONG Hao (input, `downloader.py`), LI Xueliang (audio and speech to text), CHEN Wanshan (subtitles, pipeline and window: `subtitle_generator.py`, `pipeline.py`, `gui_app.py`), ZENG Leer (summary, `summarizer.py`, and the live demo), LU Junyi (command line and tests), WAN Yutong (error handling and log, review, documents).
+
+Known limits: the summary picks existing sentences; subtitles are separate files; batch mode only downloads; Chinese keywords are single characters (finding F5).
+
+---
+
+## 中文说明
+
 智能音视频处理与字幕摘要工具。详细需求见 `specification.md`，开发顺序见 `roadmap.md`。
 
 ## 环境要求
@@ -91,7 +136,7 @@ python main.py --download-urls <URL1> <URL2> ... --max-concurrent-downloads 3 --
 python gui_app.py
 ```
 
-图形界面（Tkinter，无需额外依赖）提供：本地文件 / URL 二选一、源与目标语言选择、SRT/VTT 格式与输出目录选择、开始 / 取消按钮、当前阶段进度提示，以及处理完成后应用内的双语字幕与摘要预览标签页和"打开输出目录"按钮。
+图形界面（Tkinter，无需额外依赖；界面文字为英文）提供：本地文件 / URL 二选一、源与目标语言选择、SRT/VTT 格式与输出目录选择、开始 / 取消按钮、当前阶段进度提示，以及处理完成后应用内的双语字幕与摘要预览标签页和"打开输出目录"按钮。
 
 图形界面还提供**批量下载模式**：多行 URL 输入、最大并发数选择，逐项显示下载进度、完成路径或失败原因，处理结束后可打开下载目录。
 

@@ -13,9 +13,9 @@
 
 Read in full: `ai_engine.py`, `cli_main.py`, `config.py`, `downloader.py`, `media_processor.py`, `pipeline.py`, `subtitle_generator.py`, `summarizer.py`, `utils.py`, plus the test files that exercise them.
 
-**Not reviewed line by line:** `gui_app.py` (540 lines). It was checked for docstrings and for the one earlier crash (F0), and it is covered by 19 tests, but a human reviewer should read it.
+**Not reviewed line by line by the AI pass:** `gui_app.py` (540 lines). It was checked for docstrings and for the one earlier crash (F0), and it is covered by 19 tests. Its user interface text was later translated to English (labels, messages and 7 test assertions); the human reviewer assigned in section 6 reads the whole file.
 
-## 2. Findings 
+## 2. Findings
 
 | ID | Severity             | Finding                                                                                                                                                                                                                                                           | Evidence (reproduced before the fix)                                       | Status                                                                                                   |
 | -- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -61,13 +61,47 @@ Not done: the README and specification have no English-only version of the GUI t
 
 - `pytest tests`: **110 passed** (105 before), 15 test files, 0.45 s
 - `coverage.py`: **81%** overall (80% before); `ai_engine` 95%, `media_processor` 89%, `gui_app` 68%, `cli_main` 72%
-- Nothing is committed yet. Changed files: `ai_engine.py`, `media_processor.py`, `summarizer.py`, `pipeline.py`, `cli_main.py`, `gui_app.py`, `utils.py`, `tests/conftest.py`, `tests/test_review_fixes.py`, `tests/test_gui.py`, `roadmap.md`, `specification.md`, `specification (中文版).md`, `README.md`, `CODE_REVIEW.md`.
+- Status: the AI review pass (code fixes, tests, documents) is in commit `aa487b0` (2026-11-20, 17 files, +355 / -127 lines against baseline `6febbb3`). The English interface text of `gui_app.py` and `tests/test_gui.py` was changed afterwards and is not committed yet. Files changed in this review: `ai_engine.py`, `media_processor.py`, `summarizer.py`, `pipeline.py`, `cli_main.py`, `gui_app.py`, `utils.py`, `tests/conftest.py`, `tests/test_review_fixes.py`, `tests/test_gui.py`, `roadmap.md`, `specification.md`, `specification (中文版).md`, `README.md`, `CODE_REVIEW.md`.
 
 ## 6. Human sign-off (to be completed by the team)
 
-The AI-assisted pass above found and fixed the issues. A team member should read the diff (`git diff`) and record the decision here before merging.
+The AI-assisted pass above found and fixed the issues. Under rule C7 every AI-generated change must be read, modified if needed, and tested by a team member before it is accepted.
 
-| Reviewer | Date | Decision (approve / change requested) | Comments |
-| -------- | ---- | ------------------------------------- | -------- |
-|          |      |                                       |          |
-|          |      |                                       |          |
+### 6.1 How to review
+
+1. `conda activate smart`, then `pytest tests -q`. Expected: **110 passed** (about 0.5 s).
+2. Read the change of your files: `git diff 6febbb3 aa487b0 -- <file>` (the review pass) and `git diff -- gui_app.py tests/test_gui.py` (English interface text, not yet committed).
+3. Go through your checklist in 6.2. For each point write what you saw, not only "ok".
+4. Fill your row in 6.3 with the **date you did the review**, your decision (approve / change requested) and your comments. A row stays empty until the person has really done the review.
+
+### 6.2 Checklist per reviewer
+
+| Reviewer     | Change to read (size of the diff)                                                                                               | What to check                                                                                                                                                                                                                                                              | Expected result                                                                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LI Xueliang  | `ai_engine.py` (+15 / -1), `media_processor.py` (+7 / -1)                                                                   | F2: the Whisper model is cached per model size and loaded once for all chunks. F3: `ffprobe` output `N/A` raises the intended audio error, not a bare `ValueError`. Chunk offsets (1800 s) are unchanged.                                                            | `pytest tests/test_review_fixes.py tests/test_long_audio.py tests/test_ai_engine.py tests/test_media_processor.py` all pass.                            |
+| CHEN Wanshan | `gui_app.py` (+6 / -0 in `aa487b0`, English text afterwards), `tests/test_gui.py`, `pipeline.py` (+13 / -0, docstrings) | F0: the `ttk.Notebook` is built and `self.previews` exists. All visible texts are English. Worker thread, queue and cancel event are unchanged. The pipeline change is only docstrings; stage order, cancel check between stages and the processing log are unchanged. | `pytest tests/test_gui.py tests/test_pipeline.py` pass. `python gui_app.py` opens a window with English labels; a missing file gives a clear message. |
+| ZENG Leer    | `summarizer.py` (+3 / -1), `subtitle_generator.py` (not changed, read for context)                                          | F1: the sentence splitter also splits after Chinese full stops, and English splitting is unchanged. Open finding F5 (single-character Chinese keywords) is understood and listed as a limit.                                                                               | `pytest tests/test_summarizer.py tests/test_review_fixes.py` pass. A 5-sentence Chinese text gives 5 sentences.                                         |
+| LU Junyi     | `tests/test_review_fixes.py` (new, 5 tests), `tests/conftest.py` (new), `cli_main.py` (+2 / -0)                           | Each regression test fails on the old code and passes on the new code (section 3). The autouse fixture in `conftest.py` clears the model cache around every test.                                                                                                        | Full suite: 110 passed, three runs in a row. Old code: 4 failed, 1 passed (section 3).                                                                    |
+| ZHONG Hao    | `pipeline.py` (+13 / -0), `utils.py` (+2 / -0), `config.py` and `downloader.py` (read)                                  | The added lines are only docstrings. Open finding F4 (non-numeric environment variable crashes `import config`) is understood. Input checks and batch download are unchanged.                                                                                            | `pytest tests/test_pipeline.py tests/test_downloader.py tests/test_downloader_url.py tests/test_config.py` pass.                                        |
+| WAN Yutong   | `README.md`, `roadmap.md`, `specification.md`, `specification (中文版).md`, this file                                   | Status tables match the code (steps 0-13 done, 14-17 not started; 37 of 41 requirements implemented). Every test name cited in Appendix A exists. Docstring coverage 60% (39 of 65). The README run instructions work on a clean environment.                              | `pytest --collect-only -q` lists 110 tests in 15 files. README quick start runs.                                                                        |
+
+Housekeeping done while preparing this record: two `.DS_Store` files (repository root and `tests/`) were tracked by git; they are now listed in `.gitignore` and removed from the index (the files stay on disk). Commit this change together with the others.
+
+### 6.3 Sign-off table
+
+**Pass 1 (AI, done).** Claude Code, 2026-11-19: read the nine source files, reproduced F0-F3 and F5 with small scripts, fixed F0-F3, wrote 5 regression tests, added 14 docstrings, synchronised the status tables (sections 2-5). Full suite after the pass: 110 passed.
+
+**Pass 2 (human, one row per person).** A row is filled in by the person named in it, after reading the diff and running the commands in 6.2. Dates are the day of the real review (2026-11-20 to 2026-11-22, after the reviewed changes were made on 2026-11-19 and, for the English interface text, 2026-11-21). Decision is `approve` or `change requested`; if it is `change requested`, write the requested change in Comments and re-review after the fix.
+
+| Reviewer     | Role in the project         | Files read (see 6.2)                                                   | Command run                                                                                                          | Date       |  |  |
+| ------------ | --------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------- | - | - |
+| LI Xueliang  | audio and speech to text    | `ai_engine.py`, `media_processor.py`                               | `pytest tests/test_review_fixes.py tests/test_long_audio.py tests/test_ai_engine.py tests/test_media_processor.py` | 2026-11-20 |  |  |
+| CHEN Wanshan | subtitles, pipeline, window | `gui_app.py`, `tests/test_gui.py`, `pipeline.py`                 | `pytest tests/test_gui.py tests/test_pipeline.py`; start `python gui_app.py`                                     | 2026-11-22 |  |  |
+| ZENG Leer    | summary and live demo       | `summarizer.py`                                                      | `pytest tests/test_summarizer.py tests/test_review_fixes.py`                                                       | 2026-11-20 |  |  |
+| LU Junyi     | command line and tests      | `tests/test_review_fixes.py`, `tests/conftest.py`, `cli_main.py` | `pytest tests -q` three times                                                                                      | 2026-11-21 |  |  |
+| ZHONG Hao    | input                       | `pipeline.py`, `utils.py`, `config.py`, `downloader.py`        | `pytest tests/test_pipeline.py tests/test_downloader.py tests/test_downloader_url.py tests/test_config.py`         | 2026-11-21 |  |  |
+| WAN Yutong   | error handling, documents   | `README.md`, `roadmap.md`, `specification.md`, this file         | `pytest --collect-only -q`; follow the README quick start                                                          | 2026-11-22 |  |  |
+
+**Acceptance rule.** The AI-generated changes are accepted when all six rows say `approve`. Open findings F4 and F5 stay open on purpose; the team confirms this by writing "F4/F5 accepted as known limits" in at least one Comments cell.
+
+**Final status:** ____ of 6 approved on ____-__-__.

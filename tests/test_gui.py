@@ -13,11 +13,11 @@ import pipeline
 
 
 def test_gui_options_map_to_backend():
-    options = gui_app.build_options("file", " video.mp4 ", "unused", "自动检测",
-                                    "中文 (zh)", "vtt", " output ")
+    options = gui_app.build_options("file", " video.mp4 ", "unused", "Auto-detect",
+                                    "Chinese (zh)", "vtt", " output ")
     assert options == pipeline.PipelineOptions(file="video.mp4", format="vtt", output_dir="output")
-    options = gui_app.build_options("url", "unused", "https://example.com/video", "中文 (zh)",
-                                    "英语 (en)", "srt", "output")
+    options = gui_app.build_options("url", "unused", "https://example.com/video", "Chinese (zh)",
+                                    "English (en)", "srt", "output")
     assert options.file is None
     assert options.url == "https://example.com/video"
     assert options.source == "zh"
@@ -31,7 +31,7 @@ def test_gui_options_map_to_backend():
 ])
 def test_gui_rejects_missing_input(mode, file, url, output):
     with pytest.raises(ValueError):
-        gui_app.build_options(mode, file, url, "自动检测", "中文 (zh)", "srt", output)
+        gui_app.build_options(mode, file, url, "Auto-detect", "Chinese (zh)", "srt", output)
 
 
 def test_worker_queues_progress_and_single_terminal_event(monkeypatch):
@@ -137,7 +137,7 @@ def test_gui_preview_failure_does_not_change_success_status(tmp_path, monkeypatc
     app = _fake_view(tmp_path)
     app._finish("success", {"subtitles": tmp_path / "missing.srt", "summary": tmp_path / "summary.txt"})
     assert not app.busy
-    assert "处理完成，但预览读取失败" in app.status.set.call_args.args[0]
+    assert "Finished, but the preview could not be read" in app.status.set.call_args.args[0]
     dialog.assert_called_once()
 
 
@@ -220,7 +220,7 @@ def test_gui_cli_backend_parity(tmp_path, monkeypatch, subtitle_format):
     cli_stages = list(stages)
     stages.clear()
     gui_dir = tmp_path / "gui"
-    options = gui_app.build_options("file", str(video), "", "自动检测", "中文 (zh)",
+    options = gui_app.build_options("file", str(video), "", "Auto-detect", "Chinese (zh)",
                                     subtitle_format, str(gui_dir))
     worker = gui_app.PipelineWorker()
     worker.start(options)
