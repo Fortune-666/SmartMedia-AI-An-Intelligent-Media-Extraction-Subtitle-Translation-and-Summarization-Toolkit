@@ -55,7 +55,7 @@ The first version of the F2 fix made the suite go from 105 passed to **1 failed,
 | `specification.md` Appendix A and section 5.3 | 40 of 41 rows "To be implemented"; 8 rows named tests that do not exist | 37 rows "Implemented", 4 extension rows "Not implemented"; every cited test was checked to exist                                                                                   |
 | `README.md` development progress              | Listed only steps 0-3 and 12-13                                         | Matches the roadmap; gives the test count and coverage                                                                                                                             |
 
-Not done: `gui_app.py` still has 18 public methods without a docstring (mostly event handlers). The README keeps a Chinese section next to the English quick start.
+Not done: `gui_app.py` still has 18 public methods without a docstring (mostly event handlers).
 
 ## 5. Numbers after the review (2026-11-19)
 
